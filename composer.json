@@ -1,5 +1,5 @@
 {
-    "name": "arquivei/laravel-prometheus-exporter",
+    "name": "litt-global/laravel-prometheus-exporter",
     "description": "A Prometheus exporter for Laravel and Lumen",
     "license": "MIT",
     "authors": [
