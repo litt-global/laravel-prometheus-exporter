@@ -109,8 +109,10 @@ return [
     */
 
     'extra_labels' => array_reduce(explode(',', env('PROMETHEUS_EXTRA_LABELS', '')), function($carry, $item){
-        $kv = explode(':', $item);
-        $carry[$kv[0]] = $kv[1];
+        if (strpos($item, ':') !== FALSE) {
+            $kv = explode(':', $item);
+            $carry[$kv[0]] = $kv[1];
+        }
         return $carry;
     }, []),
 ];
