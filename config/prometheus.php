@@ -64,9 +64,10 @@ return [
     'storage_adapters' => [
 
         'redis' => [
-            'host' => env('PROMETHEUS_REDIS_HOST', 'localhost'),
-            'port' => (int)env('PROMETHEUS_REDIS_PORT', 6379),
-            'database' => (int)env('PROMETHEUS_REDIS_DATABASE', 0),
+            'host' => env('PROMETHEUS_REDIS_HOST', env('REDIS_HOST', 'localhost')),
+            'port' => (int)env('PROMETHEUS_REDIS_PORT', env('REDIS_PORT',6379)),
+            'password' => env('PROMETHEUS_REDIS_PASSWORD', env('REDIS_PASSWORD', null)),
+            'database' => (int)env('PROMETHEUS_REDIS_DB', env('REDIS_DB', 0)),
             'timeout' => (float)env('PROMETHEUS_REDIS_TIMEOUT', 0.1),
             'read_timeout' => (int)env('PROMETHEUS_REDIS_READ_TIMEOUT', 10),
             'persistent_connections' => (boolean)env('PROMETHEUS_REDIS_PERSISTENT_CONNECTIONS', false),
