@@ -22,14 +22,17 @@ class GuzzleServiceProvider extends ServiceProvider
             return $app['prometheus']->getOrRegisterHistogram(
                 'guzzle_response_duration',
                 'Guzzle response duration histogram',
-                ['method', 'external_endpoint', 'status_code']
+                array_merge(
+                    array_keys(config('prometheus.extra_labels')),
+                    ['method', 'external_endpoint', 'status_code']
+                )
             );
         });
         $this->app->singleton('prometheus.guzzle.handler', function ($app) {
             return new CurlHandler();
         });
         $this->app->singleton('prometheus.guzzle.middleware', function ($app) {
-            return new GuzzleMiddleware($app['prometheus.guzzle.client.histogram']);
+            return new GuzzleMiddleware($app['prometheus.guzzle.client.histogram'], array_values(config('prometheus.extra_labels')));
         });
         $this->app->singleton('prometheus.guzzle.handler-stack', function ($app) {
             $stack = HandlerStack::create($app['prometheus.guzzle.handler']);

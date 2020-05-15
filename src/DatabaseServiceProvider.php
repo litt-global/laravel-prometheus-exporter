@@ -14,16 +14,21 @@ class DatabaseServiceProvider extends ServiceProvider
      */
     public function boot() : void
     {
-        DB::listen(function ($query) {
+        $extra_labels_vals = array_values(config('prometheus.extra_labels'));
+
+        DB::listen(function ($query) use ($extra_labels_vals) {
             $querySql = '[omitted]';
             $type = strtoupper(strtok((string)$query->sql, ' '));
             if (config('prometheus.collect_full_sql_query')) {
                 $querySql = $this->cleanupSqlString((string)$query->sql);
             }
-            $labels = array_values(array_filter([
-                $querySql,
-                $type
-            ]));
+            $labels = array_merge(
+                $extra_labels_vals,
+                array_values(array_filter([
+                    $querySql,
+                    $type
+                ]))
+            );
             $this->app->get('prometheus.sql.histogram')->observe($query->time / 1000.0, $labels);
         });
     }
@@ -39,10 +44,13 @@ class DatabaseServiceProvider extends ServiceProvider
             return $app['prometheus']->getOrRegisterHistogram(
                 'sql_query_duration',
                 'SQL query duration histogram',
-                array_values(array_filter([
-                    'query',
-                    'query_type'
-                ]))
+                array_merge(
+                    array_keys(config('prometheus.extra_labels')),
+                    array_values(array_filter([
+                        'query',
+                        'query_type'
+                    ]))
+                )
             );
         });
     }

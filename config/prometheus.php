@@ -98,4 +98,19 @@ return [
     'collectors' => [
         // \Your\ExporterClass::class,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Extra Labels
+    |--------------------------------------------------------------------------
+    |
+    | Extra labels to stamp metrics with.
+    |
+    */
+
+    'extra_labels' => array_reduce(explode(',', env('PROMETHEUS_EXTRA_LABELS', '')), function($carry, $item){
+        $kv = explode(':', $item);
+        $carry[$kv[0]] = $kv[1];
+        return $carry;
+    }, []),
 ];

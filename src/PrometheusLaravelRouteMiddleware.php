@@ -20,6 +20,10 @@ class PrometheusLaravelRouteMiddleware
      */
     public function handle(Request $request, Closure $next) : Response
     {
+        $extra_labels = config('prometheus.extra_labels');
+        $extra_labels_keys = array_keys($extra_labels);
+        $extra_labels_vals = array_values($extra_labels);
+
         $matchedRoute = $this->getMatchedRoute($request);
 
         $start = microtime(true);
@@ -31,20 +35,26 @@ class PrometheusLaravelRouteMiddleware
         $histogram = $exporter->getOrRegisterHistogram(
             'response_time_seconds',
             'It observes response time.',
-            [
-                'method',
-                'route',
-                'status_code',
-            ]
+            array_merge(
+                $extra_labels_keys,
+                [
+                    'method',
+                    'route',
+                    'status_code',
+                ]
+            )
         );
         /** @var  Histogram $histogram */
         $histogram->observe(
             $duration,
-            [
-                $request->method(),
-                $matchedRoute->uri(),
-                $response->getStatusCode(),
-            ]
+            array_merge(
+                $extra_labels_vals,
+                [
+                    $request->method(),
+                    $matchedRoute->uri(),
+                    $response->getStatusCode(),
+                ]
+            )
         );
         return $response;
     }

@@ -14,13 +14,15 @@ class GuzzleMiddleware
      * @var Histogram
      */
     private $histogram;
+    private $extra_values;
 
     /**
      * @param Histogram $histogram
      */
-    public function __construct(Histogram $histogram)
+    public function __construct(Histogram $histogram, $extra_values)
     {
         $this->histogram = $histogram;
+        $this->extra_values = $extra_values;
     }
 
     /**
@@ -39,11 +41,14 @@ class GuzzleMiddleware
                 function (Response $response) use ($request, $start) {
                     $this->histogram->observe(
                         microtime(true) - $start,
-                        [
-                            $request->getMethod(),
-                            $request->getUri()->getHost(),
-                            $response->getStatusCode(),
-                        ]
+                        array_merge(
+                            $this->extra_values,
+                            [
+                                $request->getMethod(),
+                                $request->getUri()->getHost(),
+                                $response->getStatusCode(),
+                            ]
+                        )
                     );
                     return $response;
                 }
